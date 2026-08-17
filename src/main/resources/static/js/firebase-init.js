@@ -8,12 +8,13 @@
 
 // Firebase Web SDK (v9 compat mode for easier usage)
 const firebaseConfig = {
-  apiKey: window.FIREBASE_API_KEY || "YOUR_FIREBASE_WEB_API_KEY",
-  authDomain: window.FIREBASE_AUTH_DOMAIN || "your-project.firebaseapp.com",
-  projectId: window.FIREBASE_PROJECT_ID || "your-project-id",
-  storageBucket: window.FIREBASE_STORAGE_BUCKET || "your-project.appspot.com",
-  messagingSenderId: window.FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: window.FIREBASE_APP_ID || "1:123456789:web:abcdef"
+  apiKey: "AIzaSyAzkBvhu2o6josX6QnEbyjk1c2pz73R2aQ",
+  authDomain: "neka-garage.firebaseapp.com",
+  projectId: "neka-garage",
+  storageBucket: "neka-garage.firebasestorage.app",
+  messagingSenderId: "385698984802",
+  appId: "1:385698984802:web:d24a598f8e2659574d723b",
+  measurementId: "G-YEZSPLFGZD"
 };
 
 // Initialize Firebase
