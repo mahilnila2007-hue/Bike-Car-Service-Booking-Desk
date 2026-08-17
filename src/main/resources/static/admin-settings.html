@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Admin settings — configure garage name, billing tax, and manage seed data for NEKA Garage."/>
+  <title>Settings — NEKA Garage Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">NG</div><div><div class="sidebar-logo-text">NEKA Garage</div><div class="sidebar-logo-sub">Admin Panel</div></div></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">Overview</div>
+    <a href="/admin-dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+    <a href="/admin-users.html" class="nav-item"><span class="nav-icon">👥</span> Users</a>
+    <a href="/admin-reports.html" class="nav-item"><span class="nav-icon">📈</span> Reports</a>
+    <a href="/admin-settings.html" class="nav-item active"><span class="nav-icon">⚙️</span> Settings</a>
+    <div class="nav-section-title">Operations</div>
+    <a href="/staff-dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Staff View</a>
+    <a href="/staff-service-board.html" class="nav-item"><span class="nav-icon">⚙️</span> Service Board</a>
+    <a href="/staff-bays.html" class="nav-item"><span class="nav-icon">🏢</span> Bays</a>
+    <a href="/staff-mechanics.html" class="nav-item"><span class="nav-icon">👨‍🔧</span> Mechanics</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar" id="sidebar-user-avatar">?</div>
+      <div><div class="user-info-name" id="sidebar-user-name">Loading…</div><div class="user-info-role" id="sidebar-user-role">Admin</div></div>
+      <button id="btn-logout" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div><div class="topbar-title">⚙️ Settings</div><div class="topbar-subtitle">System configuration and data management</div></div>
+  </header>
+  <div class="page-content">
+
+    <div class="row g-4">
+      <!-- Left Column -->
+      <div class="col-md-6">
+
+        <!-- Swagger / API Docs -->
+        <div class="content-card mb-4">
+          <div class="content-card-header"><span class="section-title">📄 API Documentation</span></div>
+          <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:1rem">
+            Explore and test all REST API endpoints using the interactive Swagger UI.
+          </p>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+            <a href="/swagger-ui.html" target="_blank" class="btn-amber" style="font-size:0.85rem;text-decoration:none">
+              🔗 Open Swagger UI
+            </a>
+            <a href="/api-docs" target="_blank" class="btn-glass" style="font-size:0.85rem;text-decoration:none">
+              📋 Raw API Docs (JSON)
+            </a>
+          </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="content-card mb-4">
+          <div class="content-card-header"><span class="section-title">🌱 Demo Data Management</span></div>
+          <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:1rem">
+            Seed the system with sample bays, mechanics, service types, and parts for testing and demonstration purposes.
+          </p>
+          <div style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;color:var(--amber-400)">
+            ⚠️ Running seed multiple times may create duplicate entries. Use only when starting fresh.
+          </div>
+          <button onclick="seedData()" class="btn-amber" style="font-size:0.85rem">🌱 Seed Demo Data</button>
+        </div>
+
+        <!-- System Information -->
+        <div class="content-card">
+          <div class="content-card-header"><span class="section-title">ℹ️ System Information</span></div>
+          <div id="system-info">
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border-color)">
+              <span style="color:var(--text-muted);font-size:0.88rem">Application</span>
+              <span style="font-weight:600;color:var(--text-primary)">NEKA Smart Garage</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border-color)">
+              <span style="color:var(--text-muted);font-size:0.88rem">Version</span>
+              <span style="font-weight:600;color:var(--amber-400)">1.0.0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border-color)">
+              <span style="color:var(--text-muted);font-size:0.88rem">Backend</span>
+              <span style="font-weight:600">Spring Boot 3.2.5</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border-color)">
+              <span style="color:var(--text-muted);font-size:0.88rem">Database</span>
+              <span style="font-weight:600">Google Firestore</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border-color)">
+              <span style="color:var(--text-muted);font-size:0.88rem">Authentication</span>
+              <span style="font-weight:600">Firebase Auth</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0">
+              <span style="color:var(--text-muted);font-size:0.88rem">Server Time</span>
+              <span style="font-weight:600" id="server-time">—</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column -->
+      <div class="col-md-6">
+
+        <!-- Quick Links -->
+        <div class="content-card mb-4">
+          <div class="content-card-header"><span class="section-title">⚡ Quick Navigation</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+            <a href="/admin-dashboard.html" style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem;border:1px solid var(--border-color);border-radius:var(--radius-sm);text-decoration:none;color:var(--text-primary);transition:var(--transition);background:var(--bg-card)" onmouseover="this.style.borderColor='var(--amber-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
+              <span style="font-size:1.3rem">📊</span><span style="font-size:0.85rem;font-weight:600">Dashboard</span>
+            </a>
+            <a href="/admin-users.html" style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem;border:1px solid var(--border-color);border-radius:var(--radius-sm);text-decoration:none;color:var(--text-primary);transition:var(--transition);background:var(--bg-card)" onmouseover="this.style.borderColor='var(--amber-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
+              <span style="font-size:1.3rem">👥</span><span style="font-size:0.85rem;font-weight:600">Users</span>
+            </a>
+            <a href="/admin-reports.html" style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem;border:1px solid var(--border-color);border-radius:var(--radius-sm);text-decoration:none;color:var(--text-primary);transition:var(--transition);background:var(--bg-card)" onmouseover="this.style.borderColor='var(--amber-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
+              <span style="font-size:1.3rem">📈</span><span style="font-size:0.85rem;font-weight:600">Reports</span>
+            </a>
+            <a href="/staff-service-board.html" style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem;border:1px solid var(--border-color);border-radius:var(--radius-sm);text-decoration:none;color:var(--text-primary);transition:var(--transition);background:var(--bg-card)" onmouseover="this.style.borderColor='var(--amber-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
+              <span style="font-size:1.3rem">⚙️</span><span style="font-size:0.85rem;font-weight:600">Service Board</span>
+            </a>
+            <a href="/staff-bays.html" style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem;border:1px solid var(--border-color);border-radius:var(--radius-sm);text-decoration:none;color:var(--text-primary);transition:var(--transition);background:var(--bg-card)" onmouseover="this.style.borderColor='var(--amber-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
+              <span style="font-size:1.3rem">🏢</span><span style="font-size:0.85rem;font-weight:600">Bays</span>
+            </a>
+            <a href="/staff-mechanics.html" style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem;border:1px solid var(--border-color);border-radius:var(--radius-sm);text-decoration:none;color:var(--text-primary);transition:var(--transition);background:var(--bg-card)" onmouseover="this.style.borderColor='var(--amber-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
+              <span style="font-size:1.3rem">👨‍🔧</span><span style="font-size:0.85rem;font-weight:600">Mechanics</span>
+            </a>
+            <a href="/staff-billing.html" style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem;border:1px solid var(--border-color);border-radius:var(--radius-sm);text-decoration:none;color:var(--text-primary);transition:var(--transition);background:var(--bg-card)" onmouseover="this.style.borderColor='var(--amber-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
+              <span style="font-size:1.3rem">🧾</span><span style="font-size:0.85rem;font-weight:600">Billing</span>
+            </a>
+            <a href="/staff-bookings.html" style="display:flex;align-items:center;gap:0.6rem;padding:0.75rem;border:1px solid var(--border-color);border-radius:var(--radius-sm);text-decoration:none;color:var(--text-primary);transition:var(--transition);background:var(--bg-card)" onmouseover="this.style.borderColor='var(--amber-500)'" onmouseout="this.style.borderColor='var(--border-color)'">
+              <span style="font-size:1.3rem">📅</span><span style="font-size:0.85rem;font-weight:600">Bookings</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Current Session -->
+        <div class="content-card">
+          <div class="content-card-header"><span class="section-title">👤 Current Session</span></div>
+          <div id="session-info">
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border-color)">
+              <span style="color:var(--text-muted);font-size:0.88rem">Name</span>
+              <span style="font-weight:600;color:var(--text-primary)" id="sess-name">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border-color)">
+              <span style="color:var(--text-muted);font-size:0.88rem">Email</span>
+              <span style="font-weight:600" id="sess-email">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border-color)">
+              <span style="color:var(--text-muted);font-size:0.88rem">Role</span>
+              <span style="font-weight:600;color:var(--amber-400)" id="sess-role">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.6rem 0">
+              <span style="color:var(--text-muted);font-size:0.88rem">Local Time</span>
+              <span style="font-weight:600" id="local-time">—</span>
+            </div>
+          </div>
+          <div style="margin-top:1rem">
+            <button onclick="GarageAuth.logout()" style="width:100%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:var(--danger);padding:0.5rem;border-radius:var(--radius-sm);cursor:pointer;font-size:0.85rem;font-weight:600">
+              ⏻ Sign Out
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="/js/firebase-init.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script>
+GarageAuth.requireAuth(['ADMIN']);
+
+garageAuth.onAuthStateChanged(async user => {
+  if (!user) return;
+  setupSidebarUser(); setupLogoutBtn();
+
+  const profile = GarageAuth.getStoredUser();
+  if (profile) {
+    document.getElementById('sess-name').textContent = profile.name || '—';
+    document.getElementById('sess-email').textContent = profile.email || '—';
+    document.getElementById('sess-role').textContent = profile.role || '—';
+  }
+});
+
+// Update clocks
+function updateClocks() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+  const el = document.getElementById('local-time');
+  const se = document.getElementById('server-time');
+  if (el) el.textContent = timeStr;
+  if (se) se.textContent = now.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+}
+updateClocks();
+setInterval(updateClocks, 1000);
+
+async function seedData() {
+  if (!window.confirm('Seed demo bays, mechanics, service types, and parts?\nNote: Running this multiple times may create duplicates.')) return;
+  Loader.show();
+  try {
+    const r = await API.seedData();
+    Toast.success('Demo data seeded: ' + JSON.stringify(r));
+  } catch (err) { Toast.error('Seed failed: ' + err.message); }
+  finally { Loader.hide(); }
+}
+</script>
+</body>
+</html>

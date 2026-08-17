@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Service Board — NEKA Garage</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="stylesheet" href="/css/tracking.css"/>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">NG</div><div><div class="sidebar-logo-text">NEKA Garage</div><div class="sidebar-logo-sub">Staff Portal</div></div></div>
+  <nav class="sidebar-nav">
+    <a href="/staff-dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="/staff-bookings.html" class="nav-item"><span class="nav-icon">📅</span> Bookings</a>
+    <a href="/staff-service-board.html" class="nav-item active"><span class="nav-icon">⚙️</span> Service Board</a>
+    <a href="/staff-bays.html" class="nav-item"><span class="nav-icon">🏢</span> Bays</a>
+    <a href="/staff-mechanics.html" class="nav-item"><span class="nav-icon">👨‍🔧</span> Mechanics</a>
+    <a href="/staff-customers.html" class="nav-item"><span class="nav-icon">👥</span> Customers</a>
+    <a href="/staff-billing.html" class="nav-item"><span class="nav-icon">🧾</span> Billing</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar" id="sidebar-user-avatar">?</div>
+      <div><div class="user-info-name" id="sidebar-user-name">Loading…</div><div class="user-info-role" id="sidebar-user-role">Staff</div></div>
+      <button id="btn-logout" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div><div class="topbar-title">⚙️ Service Board</div><div class="topbar-subtitle">Manage active service jobs</div></div>
+    <button onclick="loadAll()" class="btn-glass" style="font-size:0.8rem">↻ Refresh</button>
+  </header>
+  <div class="page-content">
+
+    <!-- Job List + Detail Split View -->
+    <div class="row g-3">
+      <!-- Left: Job List -->
+      <div class="col-md-5">
+        <div class="content-card" style="height:calc(100vh - 120px);overflow-y:auto">
+          <div style="margin-bottom:1rem">
+            <select id="status-filter" class="form-select-glass" onchange="filterJobs()">
+              <option value="">All Active Jobs</option>
+              <option value="VEHICLE_RECEIVED">Vehicle Received</option>
+              <option value="BAY_ALLOCATED">Bay Allocated</option>
+              <option value="SERVICE_STARTED">Service Started</option>
+              <option value="SERVICE_IN_PROGRESS">In Progress</option>
+              <option value="WAITING_FOR_PARTS">Waiting for Parts</option>
+              <option value="QUALITY_CHECK">Quality Check</option>
+              <option value="READY_FOR_DELIVERY">Ready for Delivery</option>
+            </select>
+          </div>
+          <div id="job-list"></div>
+        </div>
+      </div>
+
+      <!-- Right: Job Detail -->
+      <div class="col-md-7">
+        <div id="job-detail-panel">
+          <div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-title">Select a job to manage</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade modal-glass" id="statusModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Update Service Status</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="form-label">New Status</label>
+        <select id="new-status" class="form-select-glass">
+          <option value="VEHICLE_RECEIVED">Vehicle Received</option>
+          <option value="BAY_ALLOCATED">Bay Allocated</option>
+          <option value="SERVICE_STARTED">Service Started</option>
+          <option value="SERVICE_IN_PROGRESS">Service In Progress</option>
+          <option value="WAITING_FOR_PARTS">Waiting for Parts</option>
+          <option value="QUALITY_CHECK">Quality Check</option>
+          <option value="READY_FOR_DELIVERY">Ready for Delivery</option>
+          <option value="COMPLETED">Completed</option>
+        </select>
+      </div>
+      <div class="mb-3"><label class="form-label">Remarks (optional)</label><textarea id="status-remarks" class="form-control-glass" rows="2" placeholder="Notes about this status change…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-glass" data-bs-dismiss="modal">Cancel</button>
+      <button type="button" class="btn-amber" id="btn-update-status">Update Status</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Add Parts Modal -->
+<div class="modal fade modal-glass" id="partsModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Add Parts Used</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <div class="mb-3"><label class="form-label">Select Part</label><select id="part-select" class="form-select-glass"></select></div>
+      <div class="mb-3"><label class="form-label">Quantity</label><input type="number" id="part-qty" class="form-control-glass" value="1" min="1"/></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-glass" data-bs-dismiss="modal">Cancel</button>
+      <button type="button" class="btn-amber" id="btn-add-part">Add Part</button>
+    </div>
+  </div></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/firebase-init.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script>
+GarageAuth.requireAuth(['STAFF', 'ADMIN']);
+
+let allJobs = [], vehicleMap = {}, mechanicMap = {}, bayMap = {}, bookingMap = {}, allParts = [];
+let selectedJobId = null;
+
+garageAuth.onAuthStateChanged(async user => {
+  if (!user) return;
+  setupSidebarUser(); setupLogoutBtn();
+  await loadAll();
+
+  // Check query param
+  const params = new URLSearchParams(window.location.search);
+  const jId = params.get('jobId');
+  if (jId) await loadJobDetail(jId);
+});
+
+async function loadAll() {
+  Loader.show();
+  try {
+    const [jobs, vehicles, mechanics, bays, bookings, parts] = await Promise.all([
+      API.getServiceJobs(), API.getVehicles(), API.getMechanics(), API.getBays(), API.getBookings(), API.getParts()
+    ]);
+    allJobs = jobs; allParts = parts;
+    vehicles.forEach(v => vehicleMap[v.vehicleId] = v);
+    mechanics.forEach(m => mechanicMap[m.mechanicId] = m);
+    bays.forEach(b => bayMap[b.bayId] = b);
+    bookings.forEach(b => bookingMap[b.bookingId] = b);
+    filterJobs();
+  } catch (err) { Toast.error(err.message); }
+  finally { Loader.hide(); }
+}
+
+function filterJobs() {
+  const filter = document.getElementById('status-filter').value;
+  const filtered = allJobs.filter(j => !filter ? !['COMPLETED'].includes(j.currentStatus) : j.currentStatus === filter);
+  renderJobList(filtered);
+}
+
+function renderJobList(jobs) {
+  const container = document.getElementById('job-list');
+  if (jobs.length === 0) { container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-title">No jobs found</div></div>'; return; }
+  container.innerHTML = jobs.map(j => {
+    const v = vehicleMap[j.vehicleId]||{}; const b = bookingMap[j.bookingId]||{};
+    const isSelected = j.serviceJobId === selectedJobId;
+    return `<div onclick="loadJobDetail('${j.serviceJobId}')" style="cursor:pointer;padding:0.9rem;border-radius:var(--radius-sm);border:1px solid ${isSelected?'var(--amber-500)':'var(--border-color)'};background:${isSelected?'var(--amber-glow)':'var(--bg-card)'};margin-bottom:0.5rem;transition:var(--transition)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
+        <span style="font-size:0.75rem;font-weight:700;color:var(--amber-400)">#${j.serviceJobId?.slice(-8)?.toUpperCase()}</span>
+        ${getStatusBadge(j.currentStatus)}
+      </div>
+      <div style="font-weight:600;color:var(--text-primary);font-size:0.9rem">${v.brand||''} ${v.model||''}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted)">${v.registrationNumber||''} · ${b.serviceType||'—'}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadJobDetail(jobId) {
+  selectedJobId = jobId;
+  filterJobs();
+  try {
+    const [job, history, parts] = await Promise.all([
+      API.getServiceJob(jobId),
+      API.getStatusHistory(jobId),
+      API.getPartsForJob(jobId)
+    ]);
+    const v = vehicleMap[job.vehicleId]||{};
+    const m = job.mechanicId ? mechanicMap[job.mechanicId] : null;
+    const bay = job.bayId ? bayMap[job.bayId] : null;
+    const b = bookingMap[job.bookingId]||{};
+
+    document.getElementById('job-detail-panel').innerHTML = `
+      <div class="content-card">
+        <div class="content-card-header">
+          <div>
+            <div style="font-weight:800;color:var(--text-primary)">${v.brand||''} ${v.model||''} <span style="color:var(--amber-400)">${v.registrationNumber||''}</span></div>
+            <div style="font-size:0.8rem;color:var(--text-muted)">Job #${job.serviceJobId?.slice(-8)?.toUpperCase()} · ${b.serviceType||'—'}</div>
+          </div>
+          ${getStatusBadge(job.currentStatus)}
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-6"><div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Bay</div><div style="font-weight:600">${bay?bay.bayNumber:'Not assigned'}</div></div>
+          <div class="col-6"><div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Mechanic</div><div style="font-weight:600">${m?m.name:'Not assigned'}</div></div>
+          <div class="col-6"><div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Started</div><div style="font-weight:600">${job.startTime?formatDateTime(job.startTime):'—'}</div></div>
+          <div class="col-6"><div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase">Est. Completion</div><div style="font-weight:600;color:var(--amber-400)">${job.estimatedCompletionTime?formatTime(job.estimatedCompletionTime):'—'}</div></div>
+        </div>
+
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
+          ${!job.bayId ? `<button onclick="doAllocateBay('${jobId}')" class="btn-amber" style="font-size:0.8rem;padding:0.4rem 0.9rem">🏢 Allocate Bay</button>` : ''}
+          ${!job.mechanicId ? `<button onclick="doAssignMechanic('${jobId}')" class="btn-amber" style="font-size:0.8rem;padding:0.4rem 0.9rem">👨‍🔧 Assign Mechanic</button>` : ''}
+          ${job.bayId && !job.startTime ? `<button onclick="doStart('${jobId}')" class="btn-amber" style="font-size:0.8rem;padding:0.4rem 0.9rem">▶ Start Service</button>` : ''}
+          <button onclick="openStatusModal('${jobId}')" class="btn-glass" style="font-size:0.8rem;padding:0.4rem 0.9rem">📝 Update Status</button>
+          <button onclick="openPartsModal('${jobId}')" class="btn-glass" style="font-size:0.8rem;padding:0.4rem 0.9rem">🔩 Add Parts</button>
+        </div>
+
+        ${parts.length > 0 ? `
+        <div style="margin-bottom:1rem">
+          <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.5rem">Parts Used</div>
+          ${parts.map(p => `<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-color);font-size:0.85rem">
+            <span>${p.partName} × ${p.quantity}</span>
+            <span style="color:var(--amber-400)">${formatCurrency(p.subtotal)}</span>
+          </div>`).join('')}
+        </div>` : ''}
+
+        <div class="content-card-header" style="margin-top:0.5rem"><span class="section-title" style="font-size:0.9rem">Progress Timeline</span></div>
+        ${buildTimeline(job.currentStatus, history)}
+      </div>`;
+
+    // Setup modal buttons
+    document.getElementById('btn-update-status').onclick = async () => {
+      const status = document.getElementById('new-status').value;
+      const remarks = document.getElementById('status-remarks').value;
+      try { await API.updateStatus(jobId, status, remarks); Toast.success('Status updated!'); bootstrap.Modal.getInstance(document.getElementById('statusModal'))?.hide(); await loadAll(); await loadJobDetail(jobId); }
+      catch (err) { Toast.error(err.message); }
+    };
+
+    document.getElementById('btn-add-part').onclick = async () => {
+      const partId = document.getElementById('part-select').value;
+      const qty = parseInt(document.getElementById('part-qty').value);
+      try { await API.addPartToJob(jobId, partId, qty); Toast.success('Part added!'); bootstrap.Modal.getInstance(document.getElementById('partsModal'))?.hide(); await loadJobDetail(jobId); }
+      catch (err) { Toast.error(err.message); }
+    };
+
+  } catch (err) { Toast.error(err.message); }
+}
+
+function openStatusModal(jobId) {
+  new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+
+function openPartsModal(jobId) {
+  document.getElementById('part-select').innerHTML = allParts.map(p =>
+    `<option value="${p.partId}">${p.partName} — ${formatCurrency(p.price)} (Stock: ${p.stockQuantity})</option>`).join('');
+  new bootstrap.Modal(document.getElementById('partsModal')).show();
+}
+
+async function doAllocateBay(jobId) {
+  Loader.show();
+  try { await API.allocateBay(jobId); Toast.success('Bay allocated!'); await loadAll(); await loadJobDetail(jobId); }
+  catch (err) { Toast.error(err.message); }
+  finally { Loader.hide(); }
+}
+
+async function doAssignMechanic(jobId) {
+  Loader.show();
+  try { await API.assignMechanic(jobId, null); Toast.success('Mechanic assigned!'); await loadAll(); await loadJobDetail(jobId); }
+  catch (err) { Toast.error(err.message); }
+  finally { Loader.hide(); }
+}
+
+async function doStart(jobId) {
+  Loader.show();
+  try { await API.startService(jobId); Toast.success('Service started!'); await loadAll(); await loadJobDetail(jobId); }
+  catch (err) { Toast.error(err.message); }
+  finally { Loader.hide(); }
+}
+</script>
+</body>
+</html>

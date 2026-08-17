@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Service History — NEKA Garage</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">NG</div><div><div class="sidebar-logo-text">NEKA Garage</div><div class="sidebar-logo-sub">Customer Portal</div></div></div>
+  <nav class="sidebar-nav">
+    <a href="/customer-dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="/customer-vehicles.html" class="nav-item"><span class="nav-icon">🚗</span> My Vehicles</a>
+    <a href="/customer-book-service.html" class="nav-item"><span class="nav-icon">📅</span> Book Service</a>
+    <a href="/customer-service-tracking.html" class="nav-item"><span class="nav-icon">📍</span> Live Tracking</a>
+    <a href="/customer-history.html" class="nav-item active"><span class="nav-icon">📋</span> Service History</a>
+    <a href="/customer-bills.html" class="nav-item"><span class="nav-icon">🧾</span> Bills</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar" id="sidebar-user-avatar">?</div>
+      <div><div class="user-info-name" id="sidebar-user-name">Loading…</div><div class="user-info-role" id="sidebar-user-role">Customer</div></div>
+      <button id="btn-logout" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div><div class="topbar-title">📋 Service History</div><div class="topbar-subtitle">All your past service bookings</div></div>
+  </header>
+  <div class="page-content">
+    <div class="content-card">
+      <div id="history-container">
+        <div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-title">No service history</div><div class="empty-state-text">Your completed services will appear here.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="/js/firebase-init.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script>
+GarageAuth.requireAuth(['CUSTOMER']);
+garageAuth.onAuthStateChanged(async user => {
+  if (!user) return;
+  setupSidebarUser(); setupLogoutBtn();
+  try {
+    const [bookings, vehicles] = await Promise.all([API.getBookings(), API.getVehicles()]);
+    const vehicleMap = {};
+    vehicles.forEach(v => vehicleMap[v.vehicleId] = v);
+    const sorted = bookings.sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+    if (sorted.length === 0) return;
+    document.getElementById('history-container').innerHTML = `
+      <table class="table-glass w-100">
+        <thead><tr><th>Booking</th><th>Vehicle</th><th>Service</th><th>Booked On</th><th>Service Date</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          ${sorted.map(b => {
+            const v = vehicleMap[b.vehicleId]||{};
+            return `<tr>
+              <td style="font-weight:700;font-size:0.8rem;color:var(--amber-400)">${b.bookingId?.slice(-8)?.toUpperCase()}</td>
+              <td><div style="font-weight:500;color:var(--text-primary)">${v.brand||''} ${v.model||''}</div><div style="font-size:0.75rem;color:var(--text-muted)">${v.registrationNumber||''}</div></td>
+              <td>${b.serviceType||'—'}</td>
+              <td style="font-size:0.8rem">${formatDate(b.createdAt)}</td>
+              <td style="font-size:0.8rem">${b.bookingDate||'—'}</td>
+              <td>${getStatusBadge(b.status)}</td>
+              <td>${!['COMPLETED','CANCELLED'].includes(b.status)?`<a href="/customer-service-tracking.html?bookingId=${b.bookingId}" style="font-size:0.8rem;color:var(--amber-400)">Track →</a>`:''}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+  } catch (err) { Toast.error(err.message); }
+});
+</script>
+</body>
+</html>

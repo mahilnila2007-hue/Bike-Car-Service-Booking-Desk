@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Dashboard — NEKA Garage</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">NG</div>
+    <div><div class="sidebar-logo-text">NEKA Garage</div><div class="sidebar-logo-sub">Staff Portal</div></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">Operations</div>
+    <a href="/staff-dashboard.html" class="nav-item active"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="/staff-bookings.html" class="nav-item"><span class="nav-icon">📅</span> Bookings</a>
+    <a href="/staff-service-board.html" class="nav-item"><span class="nav-icon">⚙️</span> Service Board</a>
+    <div class="nav-section-title">Manage</div>
+    <a href="/staff-bays.html" class="nav-item"><span class="nav-icon">🏢</span> Bays</a>
+    <a href="/staff-mechanics.html" class="nav-item"><span class="nav-icon">👨‍🔧</span> Mechanics</a>
+    <a href="/staff-customers.html" class="nav-item"><span class="nav-icon">👥</span> Customers</a>
+    <a href="/staff-billing.html" class="nav-item"><span class="nav-icon">🧾</span> Billing</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar" id="sidebar-user-avatar">?</div>
+      <div><div class="user-info-name" id="sidebar-user-name">Loading…</div><div class="user-info-role" id="sidebar-user-role">Staff</div></div>
+      <button id="btn-logout" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div><div class="topbar-title">Staff Dashboard</div><div class="topbar-subtitle" id="today-date"></div></div>
+    <a href="/staff-bookings.html" class="btn-amber" style="font-size:0.85rem">+ New Booking</a>
+  </header>
+  <div class="page-content">
+
+    <!-- Stats Row 1 -->
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon" style="background:var(--info-bg);color:var(--info)">📅</div><div class="stat-value" id="s-today">—</div><div class="stat-label">Today's Bookings</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon" style="background:var(--amber-glow);color:var(--amber-400)">⚙️</div><div class="stat-value" id="s-active">—</div><div class="stat-label">Active Services</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon" style="background:var(--success-bg);color:var(--success)">🎉</div><div class="stat-value" id="s-ready">—</div><div class="stat-label">Ready for Delivery</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon" style="background:var(--danger-bg);color:var(--danger)">🧾</div><div class="stat-value" id="s-pending-bills">—</div><div class="stat-label">Pending Bills</div></div></div>
+    </div>
+
+    <!-- Stats Row 2 -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon" style="background:var(--success-bg);color:var(--success)">🏢</div><div class="stat-value" id="s-avail-bays">—</div><div class="stat-label">Available Bays</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon" style="background:var(--danger-bg);color:var(--danger)">🔴</div><div class="stat-value" id="s-occ-bays">—</div><div class="stat-label">Occupied Bays</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon" style="background:var(--success-bg);color:var(--success)">👨‍🔧</div><div class="stat-value" id="s-avail-mech">—</div><div class="stat-label">Available Mechanics</div></div></div>
+      <div class="col-6 col-lg-3"><div class="stat-card"><div class="stat-icon" style="background:var(--warning-bg);color:var(--warning)">📊</div><div class="stat-value" id="s-utilization">—</div><div class="stat-label">Garage Utilization</div></div></div>
+    </div>
+
+    <!-- Active Services Table -->
+    <div class="content-card">
+      <div class="content-card-header">
+        <span class="section-title">⚡ Active Services</span>
+        <a href="/staff-service-board.html" style="font-size:0.8rem;color:var(--amber-400)">Full Board →</a>
+      </div>
+      <div id="active-services-container">
+        <div class="empty-state"><div class="empty-state-icon">⚙️</div><div class="empty-state-title">No active services</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="/js/firebase-init.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script>
+GarageAuth.requireAuth(['STAFF', 'ADMIN']);
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+garageAuth.onAuthStateChanged(async user => {
+  if (!user) return;
+  setupSidebarUser(); setupLogoutBtn();
+  try {
+    const [stats, jobs, bays, mechanics, bills, bookings, vehicles] = await Promise.all([
+      API.getDashboard(),
+      API.getServiceJobs(),
+      API.getBays(),
+      API.getMechanics(),
+      API.getBills(),
+      API.getBookings(),
+      API.getVehicles()
+    ]);
+
+    document.getElementById('s-today').textContent = stats.todayBookings ?? '—';
+    document.getElementById('s-active').textContent = stats.activeServices ?? '—';
+    document.getElementById('s-ready').textContent = stats.readyForDelivery ?? '—';
+    document.getElementById('s-pending-bills').textContent = stats.pendingPayments ?? '—';
+    document.getElementById('s-avail-bays').textContent = stats.availableBays ?? '—';
+    document.getElementById('s-occ-bays').textContent = stats.occupiedBays ?? '—';
+    document.getElementById('s-avail-mech').textContent = stats.availableMechanics ?? '—';
+    document.getElementById('s-utilization').textContent = (stats.garageUtilization ?? 0) + '%';
+
+    const vehicleMap = {}; vehicles.forEach(v => vehicleMap[v.vehicleId] = v);
+    const bookingMap = {}; bookings.forEach(b => bookingMap[b.bookingId] = b);
+    const mechanicMap = {}; mechanics.forEach(m => mechanicMap[m.mechanicId] = m);
+    const bayMap = {}; bays.forEach(b => bayMap[b.bayId] = b);
+
+    const activeJobs = jobs.filter(j => !['COMPLETED'].includes(j.currentStatus));
+    if (activeJobs.length > 0) {
+      document.getElementById('active-services-container').innerHTML = `
+        <table class="table-glass w-100">
+          <thead><tr><th>Job ID</th><th>Vehicle</th><th>Service</th><th>Bay</th><th>Mechanic</th><th>Status</th><th>ETA</th><th></th></tr></thead>
+          <tbody>
+            ${activeJobs.map(j => {
+              const v = vehicleMap[j.vehicleId]||{}; const b = bookingMap[j.bookingId]||{};
+              const bay = j.bayId ? bayMap[j.bayId] : null;
+              const mech = j.mechanicId ? mechanicMap[j.mechanicId] : null;
+              return `<tr>
+                <td style="font-weight:600;font-size:0.8rem;color:var(--amber-400)">${j.serviceJobId?.slice(-8)?.toUpperCase()}</td>
+                <td><div style="font-weight:500;color:var(--text-primary)">${v.brand||''} ${v.model||''}</div><div style="font-size:0.75rem;color:var(--text-muted)">${v.registrationNumber||''}</div></td>
+                <td style="font-size:0.85rem">${b.serviceType||'—'}</td>
+                <td style="font-size:0.85rem">${bay?bay.bayNumber:'—'}</td>
+                <td style="font-size:0.85rem">${mech?mech.name:'—'}</td>
+                <td>${getStatusBadge(j.currentStatus)}</td>
+                <td style="font-size:0.85rem">${j.estimatedCompletionTime?formatTime(j.estimatedCompletionTime):'—'}</td>
+                <td><a href="/staff-service-board.html?jobId=${j.serviceJobId}" style="font-size:0.8rem;color:var(--amber-400)">Manage →</a></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+  } catch (err) { Toast.error('Dashboard error: ' + err.message); }
+});
+</script>
+</body>
+</html>

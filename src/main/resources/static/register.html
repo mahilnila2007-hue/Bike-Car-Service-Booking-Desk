@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — NEKA Garage Management</title>
+  <meta name="description" content="Create a new customer account at NEKA Garage"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .auth-container { width: 100%; max-width: 480px; padding: 1rem; }
+    .auth-logo { text-align: center; margin-bottom: 1.5rem; }
+    .auth-logo-icon { width: 56px; height: 56px; background: linear-gradient(135deg,#f59e0b,#d97706); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; color: #000; margin: 0 auto 0.75rem; }
+    .auth-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 2.5rem; }
+    .bg-pattern { position: fixed; inset: 0; background: radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.06), transparent 50%), radial-gradient(ellipse at 20% 20%, rgba(168,85,247,0.04), transparent 40%); pointer-events: none; }
+    .error-msg { background: var(--danger-bg); border: 1px solid rgba(239,68,68,0.2); border-radius: var(--radius-sm); padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--danger); display: none; margin-bottom: 1rem; }
+    .step-row { display: flex; gap: 1rem; }
+    .step-row > div { flex: 1; }
+  </style>
+</head>
+<body>
+  <div class="bg-pattern"></div>
+  <div class="auth-container">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">NG</div>
+      <div style="font-size:1rem;font-weight:700;color:var(--text-primary)">NEKA Garage</div>
+    </div>
+
+    <div class="auth-card">
+      <h1 style="font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:0.25rem">Create Account</h1>
+      <p style="font-size:0.85rem;color:var(--text-muted);text-align:center;margin-bottom:1.75rem">Register as a customer to book services</p>
+
+      <div id="error-msg" class="error-msg"></div>
+
+      <form id="register-form">
+        <div class="mb-3">
+          <label class="form-label" for="name">Full Name</label>
+          <input type="text" id="name" class="form-control-glass" placeholder="Arun Kumar" required/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" class="form-control-glass" placeholder="arun@example.com" required/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="phone">Phone Number</label>
+          <input type="tel" id="phone" class="form-control-glass" placeholder="9876543210" pattern="[0-9]{10}" required/>
+        </div>
+        <div class="step-row mb-3">
+          <div>
+            <label class="form-label" for="password">Password</label>
+            <input type="password" id="password" class="form-control-glass" placeholder="Min. 6 chars" minlength="6" required/>
+          </div>
+          <div>
+            <label class="form-label" for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" class="form-control-glass" placeholder="Repeat password" required/>
+          </div>
+        </div>
+
+        <div style="background:var(--amber-glow);border:1px solid var(--border-active);border-radius:var(--radius-sm);padding:0.75rem 1rem;font-size:0.8rem;color:var(--amber-400);margin-bottom:1.25rem">
+          ℹ By registering, you'll be able to book services and track your vehicle in real-time.
+        </div>
+
+        <button type="submit" id="btn-register" class="btn-amber w-100" style="padding:0.8rem">
+          Create Account
+        </button>
+      </form>
+
+      <p style="text-align:center;font-size:0.8rem;color:var(--text-muted);margin-top:1.25rem">
+        Already have an account? <a href="/login.html">Sign in</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="/js/firebase-init.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('error-msg');
+      errEl.style.display = 'none';
+      const btn = document.getElementById('btn-register');
+      const pass = document.getElementById('password').value;
+      const conf = document.getElementById('confirm-password').value;
+
+      if (pass !== conf) {
+        errEl.textContent = 'Passwords do not match.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Creating account…';
+
+      try {
+        const { profile } = await GarageAuth.register(
+          document.getElementById('email').value,
+          pass,
+          document.getElementById('name').value,
+          document.getElementById('phone').value
+        );
+        GarageAuth.redirectByRole(profile.role);
+      } catch (err) {
+        errEl.textContent = err.message.replace('Firebase: ', '').replace(/\(auth\/.*?\)/, '').trim();
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    });
+  </script>
+</body>
+</html>

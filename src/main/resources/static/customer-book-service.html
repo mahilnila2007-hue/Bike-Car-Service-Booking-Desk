@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book a Service — NEKA Garage</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">NG</div><div><div class="sidebar-logo-text">NEKA Garage</div><div class="sidebar-logo-sub">Customer Portal</div></div></div>
+  <nav class="sidebar-nav">
+    <a href="/customer-dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+    <a href="/customer-vehicles.html" class="nav-item"><span class="nav-icon">🚗</span> My Vehicles</a>
+    <a href="/customer-book-service.html" class="nav-item active"><span class="nav-icon">📅</span> Book Service</a>
+    <a href="/customer-service-tracking.html" class="nav-item"><span class="nav-icon">📍</span> Live Tracking</a>
+    <a href="/customer-history.html" class="nav-item"><span class="nav-icon">📋</span> Service History</a>
+    <a href="/customer-bills.html" class="nav-item"><span class="nav-icon">🧾</span> Bills</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar" id="sidebar-user-avatar">?</div>
+      <div><div class="user-info-name" id="sidebar-user-name">Loading…</div><div class="user-info-role" id="sidebar-user-role">Customer</div></div>
+      <button id="btn-logout" style="margin-left:auto;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div><div class="topbar-title">📅 Book a Service</div><div class="topbar-subtitle">Schedule your vehicle for service</div></div>
+  </header>
+  <div class="page-content">
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+        <div class="content-card">
+          <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:0.25rem">New Service Booking</h2>
+          <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem">Fill in the details to book your vehicle for service.</p>
+
+          <form id="booking-form">
+            <div class="mb-3">
+              <label class="form-label">Select Vehicle *</label>
+              <select id="b-vehicle" class="form-select-glass" required>
+                <option value="">Loading vehicles…</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Service Type *</label>
+              <select id="b-service" class="form-select-glass" required>
+                <option value="">Loading service types…</option>
+              </select>
+            </div>
+            <div id="service-info" style="display:none;background:var(--amber-glow);border:1px solid var(--border-active);border-radius:var(--radius-sm);padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem">
+              <div style="display:flex;justify-content:space-between">
+                <span id="si-duration" style="color:var(--text-secondary)">Duration: —</span>
+                <span id="si-cost" style="color:var(--amber-400);font-weight:600">Labour: —</span>
+              </div>
+              <div id="si-desc" style="color:var(--text-muted);font-size:0.8rem;margin-top:0.25rem"></div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label">Preferred Date *</label>
+                <input type="date" id="b-date" class="form-control-glass" required/>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Preferred Time</label>
+                <select id="b-time" class="form-select-glass">
+                  <option value="09:00">09:00 AM</option><option value="10:00">10:00 AM</option>
+                  <option value="11:00">11:00 AM</option><option value="12:00">12:00 PM</option>
+                  <option value="14:00">02:00 PM</option><option value="15:00">03:00 PM</option>
+                  <option value="16:00">04:00 PM</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Additional Description</label>
+              <textarea id="b-desc" class="form-control-glass" rows="3" placeholder="Describe any specific issues or requests…"></textarea>
+            </div>
+            <button type="submit" id="btn-book" class="btn-amber w-100" style="padding:0.85rem;font-size:0.95rem">Confirm Booking</button>
+          </form>
+        </div>
+
+        <!-- Success Card (hidden) -->
+        <div id="success-card" style="display:none" class="content-card" style="border-color:rgba(34,197,94,0.3);background:var(--success-bg)">
+          <div style="text-align:center;padding:2rem">
+            <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+            <div style="font-size:1.2rem;font-weight:800;color:var(--success)">Booking Confirmed!</div>
+            <p style="color:var(--text-muted);margin:0.5rem 0 1.5rem">Your service booking has been created. The garage will confirm shortly.</p>
+            <div style="background:var(--bg-card);border-radius:var(--radius-sm);padding:1rem;text-align:left;font-size:0.875rem">
+              <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem"><span style="color:var(--text-muted)">Booking ID</span><span id="success-id" style="font-weight:700;color:var(--amber-400)"></span></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem"><span style="color:var(--text-muted)">Service</span><span id="success-service" style="font-weight:600"></span></div>
+              <div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted)">Date</span><span id="success-date" style="font-weight:600"></span></div>
+            </div>
+            <div style="display:flex;gap:0.75rem;justify-content:center;margin-top:1.5rem">
+              <a href="/customer-dashboard.html" class="btn-glass">Dashboard</a>
+              <button onclick="document.getElementById('success-card').style.display='none';document.getElementById('booking-form').style.display='block';" class="btn-amber">Book Another</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="/js/firebase-init.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script>
+GarageAuth.requireAuth(['CUSTOMER']);
+let serviceTypesData = [];
+
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('b-date').min = today;
+document.getElementById('b-date').value = today;
+
+garageAuth.onAuthStateChanged(async user => {
+  if (!user) return;
+  setupSidebarUser(); setupLogoutBtn();
+
+  try {
+    const [vehicles, serviceTypes] = await Promise.all([API.getVehicles(), API.getServiceTypes()]);
+    serviceTypesData = serviceTypes;
+
+    const vSel = document.getElementById('b-vehicle');
+    if (vehicles.length === 0) { vSel.innerHTML = '<option value="">No vehicles — add one first</option>'; return; }
+    vSel.innerHTML = vehicles.map(v => `<option value="${v.vehicleId}">${v.brand} ${v.model} (${v.registrationNumber})</option>`).join('');
+
+    // Pre-select from query param
+    const params = new URLSearchParams(window.location.search);
+    const preVehicle = params.get('vehicleId');
+    if (preVehicle) vSel.value = preVehicle;
+
+    const sSel = document.getElementById('b-service');
+    sSel.innerHTML = serviceTypes.map(s => `<option value="${s.name}" data-id="${s.serviceTypeId}" data-duration="${s.estimatedDurationMinutes}" data-cost="${s.defaultLabourCost}" data-desc="${s.description||''}">${s.name}</option>`).join('');
+    sSel.onchange = () => showServiceInfo();
+    showServiceInfo();
+  } catch (err) { Toast.error(err.message); }
+});
+
+function showServiceInfo() {
+  const opt = document.getElementById('b-service').selectedOptions[0];
+  if (!opt) return;
+  const dur = opt.dataset.duration;
+  const cost = opt.dataset.cost;
+  const desc = opt.dataset.desc;
+  document.getElementById('si-duration').textContent = `Duration: ~${dur} mins`;
+  document.getElementById('si-cost').textContent = `Labour: ${formatCurrency(cost)}`;
+  document.getElementById('si-desc').textContent = desc;
+  document.getElementById('service-info').style.display = 'block';
+}
+
+document.getElementById('booking-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btn-book');
+  btn.disabled = true; btn.textContent = 'Booking…';
+  try {
+    const booking = await API.createBooking({
+      vehicleId: document.getElementById('b-vehicle').value,
+      serviceType: document.getElementById('b-service').value,
+      description: document.getElementById('b-desc').value,
+      bookingDate: document.getElementById('b-date').value,
+      preferredTime: document.getElementById('b-time').value
+    });
+    document.getElementById('booking-form').style.display = 'none';
+    const card = document.getElementById('success-card');
+    card.style.display = 'block';
+    document.getElementById('success-id').textContent = booking.bookingId?.slice(-8)?.toUpperCase();
+    document.getElementById('success-service').textContent = booking.serviceType;
+    document.getElementById('success-date').textContent = booking.bookingDate;
+  } catch (err) {
+    Toast.error(err.message);
+    btn.disabled = false; btn.textContent = 'Confirm Booking';
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+# ==============================
+# Git Ignore - Garage Management
+# ==============================
+
+# Environment & Secrets
+.env
+*.env
+firebase-service-account.json
+*-service-account.json
+*-adminsdk-*.json
+serviceAccountKey.json
+
+# Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Spring Boot
+spring-boot-devtools/
+
+# OS
+.DS_Store
+Desktop.ini
